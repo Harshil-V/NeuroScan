@@ -7,10 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from app.clients.orthanc import OrthancError
 from app.db import Base
 from app.models.audit import AuditEvent
-from app.services.dicom_validation import (
-    InvalidDicomError,
-    MissingRequiredTagError,
-)
 from app.services.upload import UploadFailedError, handle_upload
 from tests.fixtures.synthetic_dicom import (
     make_dicom_missing_modality,

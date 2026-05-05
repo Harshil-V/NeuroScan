@@ -49,9 +49,7 @@ async def test_upload_instance_raises_after_retries_exhausted(client: OrthancCli
 
 @respx.mock
 async def test_get_studies_returns_list(client: OrthancClient):
-    respx.get("http://orthanc:8042/studies").respond(
-        200, json=["s1", "s2"]
-    )
+    respx.get("http://orthanc:8042/studies").respond(200, json=["s1", "s2"])
     respx.get("http://orthanc:8042/studies/s1").respond(
         200, json={"ID": "s1", "MainDicomTags": {"StudyInstanceUID": "1.2.3"}, "Series": []}
     )
