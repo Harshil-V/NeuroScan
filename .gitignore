@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.python-version
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+.vite/
+playwright-report/
+test-results/
+
+# Env / secrets
+.env
+.env.local
+*.local
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Sample data (large, regenerable, or fetched on demand)
+data/sample-dicom/synthetic/
+data/sample-dicom/tcia-brain-mr/
+
+# Docker volumes when bind-mounted to local dirs
+infra/.volumes/
