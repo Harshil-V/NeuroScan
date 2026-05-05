@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routes import dicom, health
+from app.routes import dicom, health, studies
 from app.services.upload import UploadFailedError
 
 
@@ -26,6 +26,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(dicom.router)
     app.include_router(dicom.instances_router)
+    app.include_router(studies.router)
     return app
 
 
