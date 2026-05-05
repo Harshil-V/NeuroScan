@@ -35,6 +35,45 @@ services:
       timeout: 5s
       retries: 10
 
+  api-service:
+    build:
+      context: ../services/api-service
+      dockerfile: Dockerfile
+    image: neuroscan/api-service:dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      orthanc:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-neuroscan}:${POSTGRES_PASSWORD:-neuroscan}@postgres:5432/${POSTGRES_DB:-neuroscan}
+      ORTHANC_URL: http://orthanc:8042
+      ORTHANC_USER: orthanc
+      ORTHANC_PASSWORD: orthanc
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request,sys;sys.exit(0 if urllib.request.urlopen(\"http://localhost:8000/health\",timeout=2).status==200 else 1)'"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  web-viewer:
+    build:
+      context: ../apps/web-viewer
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    image: neuroscan/web-viewer:dev
+    restart: unless-stopped
+    depends_on:
+      api-service:
+        condition: service_started
+    ports:
+      - "5173:80"
+
 volumes:
   postgres_data:
   orthanc_data:
