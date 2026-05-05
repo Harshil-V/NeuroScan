@@ -1,0 +1,40 @@
+name: neuroscan
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-neuroscan}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-neuroscan}
+      POSTGRES_DB: ${POSTGRES_DB:-neuroscan}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-neuroscan}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  orthanc:
+    image: orthancteam/orthanc:24.7.3
+    restart: unless-stopped
+    ports:
+      - "8042:8042"
+      - "4242:4242"
+    volumes:
+      - ./orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+      - orthanc_data:/var/lib/orthanc/db
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "python3 -c \"import urllib.request,base64,sys; r=urllib.request.Request('http://localhost:8042/system', headers={'Authorization':'Basic '+base64.b64encode(b'orthanc:orthanc').decode()}); urllib.request.urlopen(r,timeout=3).read()\" || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  orthanc_data:
