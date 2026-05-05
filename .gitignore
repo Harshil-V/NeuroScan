@@ -15,6 +15,9 @@ dist/
 .vite/
 playwright-report/
 test-results/
+*.tsbuildinfo
+apps/web-viewer/vite.config.js
+apps/web-viewer/vite.config.d.ts
 
 # Env / secrets
 .env
