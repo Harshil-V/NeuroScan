@@ -63,9 +63,7 @@ async def get_study(
                 series_instance_uid=s_tags.get("SeriesInstanceUID", ""),
                 series_description=s_tags.get("SeriesDescription"),
                 modality=s_tags.get("Modality"),
-                series_number=int(s_tags["SeriesNumber"])
-                if s_tags.get("SeriesNumber")
-                else None,
+                series_number=int(s_tags["SeriesNumber"]) if s_tags.get("SeriesNumber") else None,
                 instance_count=len(s.get("Instances", [])),
             )
         )
@@ -93,9 +91,7 @@ async def list_series_instances(
             InstanceOut(
                 orthanc_instance_id=inst["ID"],
                 sop_instance_uid=tags.get("SOPInstanceUID", ""),
-                instance_number=int(tags["InstanceNumber"])
-                if tags.get("InstanceNumber")
-                else None,
+                instance_number=int(tags["InstanceNumber"]) if tags.get("InstanceNumber") else None,
                 rows=int(tags["Rows"]) if tags.get("Rows") else None,
                 columns=int(tags["Columns"]) if tags.get("Columns") else None,
             )
