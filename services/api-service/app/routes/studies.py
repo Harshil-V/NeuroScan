@@ -14,20 +14,27 @@ from app.schemas.study import (
 router = APIRouter(prefix="/api", tags=["studies"])
 
 
-def _study_from_orthanc(detail: dict) -> StudyOut:
+async def _study_from_orthanc(detail: dict, orthanc: OrthancClient) -> StudyOut:
     tags = detail.get("MainDicomTags", {})
     patient_tags = detail.get("PatientMainDicomTags", {})
     series_ids = detail.get("Series", [])
+
+    # Modality lives on series, not study in Orthanc. Fetch first series to get it.
+    modality = tags.get("ModalitiesInStudy") or tags.get("Modality")
+    if not modality and series_ids:
+        first_series = await orthanc.get_series(series_ids[0])
+        modality = first_series.get("MainDicomTags", {}).get("Modality")
+
     return StudyOut(
         orthanc_study_id=detail["ID"],
         study_instance_uid=tags.get("StudyInstanceUID", ""),
         patient_id=patient_tags.get("PatientID"),
-        modality=tags.get("ModalitiesInStudy") or tags.get("Modality"),
+        modality=modality,
         study_date=tags.get("StudyDate"),
         study_description=tags.get("StudyDescription"),
         series_count=len(series_ids),
         instance_count=detail.get("Statistics", {}).get("CountInstances")
-        or sum(1 for _ in series_ids),  # fallback approximation
+        or sum(1 for _ in series_ids),
     )
 
 
@@ -40,7 +47,7 @@ async def list_studies(
     studies = await orthanc.list_studies()
     total = len(studies)
     page = studies[offset : offset + limit]
-    items = [_study_from_orthanc(s) for s in page]
+    items = [await _study_from_orthanc(s, orthanc) for s in page]
     return StudyListOut(items=items, total=total, limit=limit, offset=offset)
 
 
@@ -67,7 +74,7 @@ async def get_study(
                 instance_count=len(s.get("Instances", [])),
             )
         )
-    base = _study_from_orthanc(detail)
+    base = await _study_from_orthanc(detail, orthanc)
     return StudyDetailOut(**base.model_dump(), series=series_out)
 
 
