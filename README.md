@@ -8,7 +8,7 @@ Local-first MRI / DICOM viewing, reconstruction, and clinical-data-transfer simu
 
 See **[`docs/status.md`](docs/status.md)** for the current state.
 
-Active slice: **Slice 1 — Vertical spine** (spec approved, implementation pending).
+Active slice: **Slice 1 — Vertical spine** (implementation complete).
 
 ## Documentation
 
@@ -25,7 +25,49 @@ Quick links:
 
 ## Quickstart
 
-The repo is currently in the design phase. Once Slice 1 ships, this section will document `docker compose up -d` and friends. Until then, see the active slice spec for the planned developer workflow.
+**Prereqs:** Docker (Docker Desktop, OrbStack, or Colima), Python 3.12+, [`uv`](https://docs.astral.sh/uv/), Node 20+.
+
+```bash
+git clone <repo> && cd NeuroScan
+cp .env.example .env
+
+# Bring up the local stack (postgres + orthanc + api-service + web-viewer)
+docker compose -f infra/docker-compose.yml up -d --build
+
+# Visit
+#   http://localhost:5173        web viewer
+#   http://localhost:8000/docs   API docs
+#   http://localhost:8042        Orthanc UI (orthanc/orthanc)
+
+# Generate a synthetic DICOM and upload it via the UI
+uv run --directory services/api-service python ../../scripts/generate-synthetic-dicom.py /tmp/x.dcm
+```
+
+### macOS + OrbStack note
+
+OrbStack does not bind `/var/run/docker.sock` by default. For testcontainers (Python integration tests) and direct docker-py usage, set:
+
+```bash
+export PATH="$HOME/.orbstack/bin:$PATH"
+export DOCKER_HOST="unix://$HOME/.orbstack/run/docker.sock"
+```
+
+The `docker compose` CLI itself works without `DOCKER_HOST` once `~/.orbstack/bin` is on PATH.
+
+### Tests
+
+```bash
+# api-service: unit + integration (testcontainers spins postgres + orthanc)
+cd services/api-service && uv run pytest
+
+# web-viewer: typecheck + production build
+cd apps/web-viewer && npm run typecheck && npm run build
+
+# Playwright E2E (stack must be up)
+cd tests/e2e && npm test
+```
+
+For the manual QA checklist, see [`docs/qa-validation-plan.md`](docs/qa-validation-plan.md).
 
 ## License
 
