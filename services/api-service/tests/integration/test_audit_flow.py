@@ -24,13 +24,9 @@ async def test_audit_orders_newest_first(api_client):
 async def test_audit_filter_by_status(api_client):
     await api_client.post(
         "/api/dicom/upload",
-        files={
-            "file": ("a.dcm", make_synthetic_mr_dicom_bytes(), "application/dicom")
-        },
+        files={"file": ("a.dcm", make_synthetic_mr_dicom_bytes(), "application/dicom")},
     )
-    await api_client.post(
-        "/api/dicom/upload", files={"file": ("b.txt", b"x", "text/plain")}
-    )
+    await api_client.post("/api/dicom/upload", files={"file": ("b.txt", b"x", "text/plain")})
     success = await api_client.get("/api/audit/events?status=success")
     failure = await api_client.get("/api/audit/events?status=failure")
     assert success.json()["total"] == 1

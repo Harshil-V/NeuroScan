@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import time
 from collections.abc import AsyncIterator, Iterator
@@ -35,12 +36,10 @@ def orthanc_container() -> Iterator[DockerContainer]:
     )
     container.start()
     try:
-        try:
+        # Some Orthanc images log a different startup line; if we time out, fall
+        # through to the polling-based readiness check in the orthanc_url fixture.
+        with contextlib.suppress(TimeoutError):
             wait_for_logs(container, "Orthanc has started", timeout=60)
-        except TimeoutError:
-            # Some Orthanc images log a different startup line; fall through to
-            # the polling-based readiness check in the orthanc_url fixture.
-            pass
         yield container
     finally:
         container.stop()

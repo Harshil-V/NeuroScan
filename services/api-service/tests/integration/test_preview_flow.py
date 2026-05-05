@@ -4,9 +4,7 @@ from tests.fixtures.synthetic_dicom import make_synthetic_mr_dicom_bytes
 async def test_preview_returns_png(api_client):
     upload = await api_client.post(
         "/api/dicom/upload",
-        files={
-            "file": ("a.dcm", make_synthetic_mr_dicom_bytes(), "application/dicom")
-        },
+        files={"file": ("a.dcm", make_synthetic_mr_dicom_bytes(), "application/dicom")},
     )
     instance_id = upload.json()["orthanc_instance_id"]
     resp = await api_client.get(f"/api/instances/{instance_id}/preview.png")

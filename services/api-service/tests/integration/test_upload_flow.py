@@ -42,8 +42,6 @@ async def test_upload_missing_modality_returns_400(api_client):
 
 
 async def test_failure_writes_audit_row(api_client):
-    await api_client.post(
-        "/api/dicom/upload", files={"file": ("nope.txt", b"x", "text/plain")}
-    )
+    await api_client.post("/api/dicom/upload", files={"file": ("nope.txt", b"x", "text/plain")})
     audit = await api_client.get("/api/audit/events?status=failure")
     assert audit.json()["total"] == 1
