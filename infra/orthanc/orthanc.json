@@ -1,0 +1,19 @@
+{
+  "Name": "NeuroScan Orthanc",
+  "HttpPort": 8042,
+  "DicomPort": 4242,
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": { "orthanc": "orthanc" },
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web/"
+  },
+  "PostgreSQL": {
+    "EnableIndex": false,
+    "EnableStorage": false
+  },
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  "ConcurrentJobs": 2
+}
