@@ -9,7 +9,7 @@ The project is built in independently-shippable slices. Each slice goes through 
 | # | Slice | Status | Spec | Notes |
 |---|---|---|---|---|
 | 1 | Vertical spine: Compose + FastAPI + Orthanc + Postgres + minimal React + audit + checksum + CI + E2E | **done** | [spec](./superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md) · [plan](./superpowers/plans/2026-05-05-slice-1-vertical-spine.md) | Completed 2026-05-05 on branch `slice-1-vertical-spine` |
-| 2 | Qt desktop viewer (standalone, reads local DICOM dir, no backend dependency) | planned | — | |
+| 2 | Qt desktop viewer (standalone, reads local DICOM dir, no backend dependency) | **done** | [spec](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md) · [plan](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md) | Completed 2026-05-06 on branch `slice-2-qt-desktop-viewer` |
 | 3 | Reconstruction service (k-space → reconstructed image → DICOM → Orthanc) | planned | — | Adds `reconstruction_jobs` table + reconstruction-service container |
 | 4 | MinIO + signed-URL upload flow + checksum-validated object storage | planned | — | Adds `storage_objects` table + minio container |
 | 5 | De-identification scanner + warning UI on upload | planned | — | |
