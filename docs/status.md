@@ -6,7 +6,7 @@
 
 ## Current slice
 
-**Slice 2 — Qt desktop viewer.** Implementation complete on branch `slice-2-qt-desktop-viewer`. Pending manual smoke verification.
+**Slice 2 — Qt desktop viewer.** Implementation complete. Merged to `main` 2026-05-06.
 
 Spec: [`superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md`](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md)
 Plan: [`superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md`](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md)
@@ -57,9 +57,16 @@ Slice 1 (merged to `main`):
 
 ## What's next
 
-1. Manually run the Slice 2 smoke checklist (`apps/desktop-viewer/README.md` "Manual smoke checklist") with the 32-slice series and Slice 1 stack.
-2. Push the `slice-2-qt-desktop-viewer` branch.
-3. Brainstorm Slice 3 — Reconstruction service (k-space → reconstructed DICOM → Orthanc).
+1. Brainstorm Slice 3 — Reconstruction service (k-space → FFT reconstruction → DICOM → Orthanc).
+2. Write Slice 3 spec → plan → implement.
+
+## Test data
+
+| Folder | Data | Slices | Use |
+|---|---|---|---|
+| `data/sample-dicom/real/` | Real brain MR | 1 | Single-instance load, upload |
+| `data/sample-dicom/real-multislice/` | Real MR pixels, 20 slices | 20 | Slice nav, W/L, Default preset |
+| `data/sample-dicom/synthetic-series/` | Synthetic gradient | 32 | Many-slice stress test |
 
 ## Open questions / blockers
 
@@ -72,7 +79,7 @@ None.
 - 2026-05-05: Locked slice 1 scope: includes audit + checksum + CI + Playwright; defers auth, MinIO, de-id, metrics.
 - 2026-05-05: Slice 1 implementation complete and merged to `main`.
 - 2026-05-06: Locked AD-S2-1..9 (PySide6, pyqtgraph, in-memory volume, software W/L, QSettings, no Docker for desktop, no pytest-qt, pylibjpeg deps, CI lint+unit only).
-- 2026-05-06: Slice 2 implementation complete (29 unit tests, manual smoke pending).
+- 2026-05-06: Slice 2 implementation complete and merged to `main`. 29 unit tests passing.
 
 ### Slice 2 implementation deviations from spec/plan (record for posterity)
 

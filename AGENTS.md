@@ -2,6 +2,17 @@
 
 > Read this first if you are an AI agent (Cursor, Claude Code, Codex, etc.) starting work on this repo.
 
+## Slice progress summary
+
+| Slice | Status | Branch merged to main |
+|---|---|---|
+| 1 — Vertical spine (FastAPI + Orthanc + React) | **done** | 2026-05-05 |
+| 2 — Qt desktop viewer (PySide6, pyqtgraph) | **done** | 2026-05-06 |
+| 3 — Reconstruction service (k-space → FFT → DICOM) | **next** | — |
+| 4–10 | planned | — |
+
+---
+
 ## What this project is
 
 NeuroScan Workstation is a local-first medical imaging engineering platform that simulates an end-to-end MRI/DICOM workflow: Qt desktop viewer + React web viewer + FastAPI backend + Orthanc DICOM archive + MRI reconstruction service + simulated secure clinical data transfer (MinIO + signed URLs + audit + de-id checks). It is a **portfolio engineering project**, not a clinical product. It uses only synthetic or de-identified public imaging data.
@@ -38,12 +49,13 @@ before the next slice starts. Spec files live in `docs/superpowers/specs/`. No s
 
 ## Key tooling decisions (locked)
 
-- Python: `uv` + `pyproject.toml` (no pip, no poetry).
+- Python: `uv` + `pyproject.toml` (no pip, no poetry). Each Python service/app has its own pyproject + venv.
 - JS: `npm` + Vite (no pnpm workspaces, no Turborepo).
 - DB migrations: Alembic from day 1.
-- Integration tests: `testcontainers`.
-- E2E: Playwright.
-- CI: GitHub Actions.
+- Integration tests: `testcontainers` (api-service only; desktop-viewer uses in-memory SQLite or mocks).
+- E2E: Playwright (web only; no headless GUI tests for Qt).
+- CI: GitHub Actions — 4 jobs: `python` (api-service), `web` (web-viewer), `e2e` (Playwright), `desktop-viewer` (lint + unit, headless Qt with `QT_QPA_PLATFORM=offscreen`).
+- OrbStack on macOS: set `DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for testcontainers. The `docker compose` CLI works once `~/.orbstack/bin` is on PATH.
 
 See `docs/roadmap.md` "Locked decisions" section for the full list.
 
