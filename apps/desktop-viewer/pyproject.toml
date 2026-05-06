@@ -36,3 +36,7 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["N806"]
+# Qt widgets: signals are mixedCase and overridden methods (keyPressEvent,
+# eventFilter, ...) are camelCase by Qt convention. Suppress PEP 8 naming
+# checks for the widget package.
+"app/widgets/**/*.py" = ["N802", "N815"]
