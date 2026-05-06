@@ -88,5 +88,5 @@ def test_instance_ref_dataclass_is_frozen():
         rows=64,
         columns=64,
     )
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         ref.sop_instance_uid = "different"  # type: ignore[misc]
