@@ -24,6 +24,8 @@ def make_synthetic_mr_dicom_bytes(
     columns: int = 16,
     patient_id: str = "TEST-001",
     modality: str = "MR",
+    instance_number: int = 1,
+    pixel_array_override: np.ndarray | None = None,
 ) -> bytes:
     """Generate a valid MR DICOM as bytes."""
     study_uid = study_instance_uid or generate_uid()
@@ -50,7 +52,7 @@ def make_synthetic_mr_dicom_bytes(
     ds.StudyDescription = "Synthetic Test Study"
     ds.SeriesDescription = "Synthetic Test Series"
     ds.SeriesNumber = 1
-    ds.InstanceNumber = 1
+    ds.InstanceNumber = instance_number
     ds.Rows = rows
     ds.Columns = columns
     ds.BitsAllocated = 16
@@ -60,7 +62,18 @@ def make_synthetic_mr_dicom_bytes(
     ds.SamplesPerPixel = 1
     ds.PhotometricInterpretation = "MONOCHROME2"
 
-    pixel_array = np.random.default_rng(seed=42).integers(0, 4096, (rows, columns), dtype=np.uint16)
+    if pixel_array_override is not None:
+        if pixel_array_override.shape != (rows, columns):
+            raise ValueError(
+                f"pixel_array_override shape {pixel_array_override.shape} "
+                f"does not match rows×columns ({rows}×{columns})"
+            )
+        pixel_array = pixel_array_override.astype(np.uint16)
+    else:
+        seed = abs(hash(sop_uid)) % (2**32)
+        pixel_array = np.random.default_rng(seed).integers(
+            0, 4096, (rows, columns), dtype=np.uint16
+        )
     ds.PixelData = pixel_array.tobytes()
     ds.is_little_endian = True
     ds.is_implicit_VR = False
