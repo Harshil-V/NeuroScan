@@ -57,5 +57,5 @@ def test_dicom_to_kspace_handles_zero_image():
 
 
 def test_dicom_to_kspace_garbage_raises():
-    with pytest.raises(Exception):
+    with pytest.raises(Exception):  # noqa: B017
         dicom_to_kspace(b"this is definitely not DICOM")

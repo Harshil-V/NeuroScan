@@ -25,8 +25,10 @@ def _write_h5(path: Path, dataset_name: str, arr: np.ndarray) -> None:
 
 
 def test_load_npy_2d_complex(tmp_path: Path):
-    arr = (np.random.default_rng(0).standard_normal((64, 64))
-           + 1j * np.random.default_rng(1).standard_normal((64, 64))).astype(np.complex64)
+    arr = (
+        np.random.default_rng(0).standard_normal((64, 64))
+        + 1j * np.random.default_rng(1).standard_normal((64, 64))
+    ).astype(np.complex64)
     p = tmp_path / "k.npy"
     _write_npy(p, arr)
 
@@ -74,8 +76,10 @@ def test_load_npz_without_ground_truth_returns_none(tmp_path: Path):
 
 
 def test_load_h5_single_coil_2d(tmp_path: Path):
-    arr = (np.random.default_rng(0).standard_normal((128, 128))
-           + 1j * np.random.default_rng(1).standard_normal((128, 128))).astype(np.complex64)
+    arr = (
+        np.random.default_rng(0).standard_normal((128, 128))
+        + 1j * np.random.default_rng(1).standard_normal((128, 128))
+    ).astype(np.complex64)
     p = tmp_path / "k.h5"
     _write_h5(p, "kspace", arr)
 

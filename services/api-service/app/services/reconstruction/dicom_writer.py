@@ -57,9 +57,7 @@ def image_to_mr_dicom(
     file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
     file_meta.ImplementationClassUID = generate_uid()
 
-    ds = FileDataset(
-        f"{source_name}.dcm", {}, file_meta=file_meta, preamble=b"\0" * 128
-    )
+    ds = FileDataset(f"{source_name}.dcm", {}, file_meta=file_meta, preamble=b"\0" * 128)
     ds.SOPClassUID = pydicom.uid.MRImageStorage
     ds.SOPInstanceUID = sop_uid
     ds.StudyInstanceUID = study_uid

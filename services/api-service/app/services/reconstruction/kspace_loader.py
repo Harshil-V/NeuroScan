@@ -100,6 +100,4 @@ def _coerce_2d_complex(arr: np.ndarray) -> np.ndarray:
         mid_slice = arr.shape[0] // 2
         coil_avg = np.mean(arr[mid_slice], axis=0)
         return coil_avg.astype(np.complex64)
-    raise UnsupportedShapeError(
-        f"K-space must be 2D/3D/4D, got shape {arr.shape}"
-    )
+    raise UnsupportedShapeError(f"K-space must be 2D/3D/4D, got shape {arr.shape}")
