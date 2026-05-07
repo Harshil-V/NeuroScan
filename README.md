@@ -4,6 +4,12 @@ Local-first MRI / DICOM viewing, reconstruction, and clinical-data-transfer simu
 
 > Portfolio engineering project. Uses only synthetic or de-identified public imaging data. Not a clinical product. Not HIPAA-certified. Not FDA-validated.
 
+**What this project demonstrates:**
+
+- DICOM upload, validation, and Orthanc archival with audit logging.
+- Qt desktop viewer (PySide6 + pyqtgraph) for multi-slice DICOM series.
+- **MRI reconstruction**: inverse FFT pipeline with PSNR/SSIM quality metrics, queued via FastAPI BackgroundTasks, output stored as DICOM in Orthanc.
+
 ## Status
 
 See **[`docs/status.md`](docs/status.md)** for the current state.
@@ -41,6 +47,12 @@ docker compose -f infra/docker-compose.yml up -d --build
 
 # Generate a synthetic DICOM and upload it via the UI
 uv run --directory services/api-service python ../../scripts/generate-synthetic-dicom.py /tmp/x.dcm
+
+# Generate a synthetic k-space file (for the /reconstruction page)
+mkdir -p data/sample-dicom/synthetic-kspace
+uv run --directory services/api-service python ../../scripts/generate-synthetic-kspace.py \
+    "$PWD/data/sample-dicom/real-multislice/slice_010.dcm" \
+    "$PWD/data/sample-dicom/synthetic-kspace/brain.npz"
 ```
 
 ### macOS + OrbStack note

@@ -134,6 +134,30 @@ Expected:
 - No partial study appears in /studies after Orthanc settles.
 - A `failure` audit row may or may not appear depending on where the request was interrupted; either is acceptable.
 
+### TC-08 Reconstruction round-trip (PSNR + SSIM verification)
+
+Steps:
+1. With the stack running:
+   ```
+   uv run --directory services/api-service python ../../scripts/generate-synthetic-kspace.py \
+       "$PWD/data/sample-dicom/real-multislice/slice_010.dcm" \
+       /tmp/brain.npz
+   ```
+2. Open http://localhost:5173/reconstruction.
+3. Drop `/tmp/brain.npz`.
+4. Watch the new row appear in the table; status transitions `queued → running → completed` within ~5 s.
+5. Click the row to expand the side-by-side preview.
+6. Click "Open reconstructed study →".
+
+Expected:
+- Status reaches `completed`.
+- PSNR > 60 dB (FFT round-trip is essentially lossless).
+- SSIM > 0.95.
+- Reconstructed study appears under `/studies` with PatientName `Reconstruction^Output`.
+- Preview image renders on the study detail page.
+
+Pass criteria: all expected outcomes met. Reject row also added if a malformed file is uploaded.
+
 ## Automated tests as QA artifacts
 
 The following automated suites also serve as QA evidence:
@@ -154,3 +178,7 @@ The following automated suites also serve as QA evidence:
 - Studies/series/instances metadata is NOT cached in Postgres; every list call hits Orthanc. Acceptable for slice 1; will be revisited in slice 6.
 
 These are deliberate scope omissions, all mapped to future slices in [`roadmap.md`](roadmap.md).
+
+- Reconstruction supports 2D single-coil k-space only. Multi-coil (sum-of-squares) and 3D volumetric reconstruction are deferred to a future slice.
+- Raw k-space inputs are stored only in a temp directory during processing and deleted on terminal status. Permanent k-space storage is Slice 4's job.
+- Reconstruction jobs are not load-tested for concurrency; a real queue with worker pools comes in Slice 9.
