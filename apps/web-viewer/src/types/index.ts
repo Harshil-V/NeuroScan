@@ -64,3 +64,28 @@ export interface AuditEvent {
   checksum_sha256: string | null;
   created_at: string;
 }
+
+export interface ReconstructionJob {
+  job_id: string;
+  status: "queued" | "running" | "completed" | "failed";
+  input_file_name: string;
+  input_format: "npy" | "npz" | "h5";
+  input_shape: string | null;
+  output_dicom_uid: string | null;
+  output_orthanc_instance_id: string | null;
+  psnr_db: number | null;
+  ssim: number | null;
+  duration_ms: number | null;
+  error_message: string | null;
+  created_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export interface ReconstructionJobCreated {
+  job_id: string;
+  status: "queued";
+  input_file_name: string;
+  input_format: "npy" | "npz" | "h5";
+  created_at: string;
+}
