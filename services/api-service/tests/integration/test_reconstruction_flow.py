@@ -39,9 +39,7 @@ async def _wait_for_terminal(api_client, job_id, timeout_s: float = 30.0) -> dic
     pytest.fail(f"Job {job_id} did not reach terminal status within {timeout_s}s")
 
 
-async def test_reconstruction_npz_with_ground_truth_completes_with_metrics(
-    api_client, db_session
-):
+async def test_reconstruction_npz_with_ground_truth_completes_with_metrics(api_client, db_session):
     npz_bytes = _build_npz_bytes(rows=64, cols=64)
     response = await api_client.post(
         "/api/reconstruction/jobs",
