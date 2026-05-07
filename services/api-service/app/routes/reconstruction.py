@@ -16,6 +16,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from fastapi.responses import JSONResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -63,21 +64,21 @@ async def create_job(
     filename = file.filename or "upload.bin"
     ext = Path(filename).suffix.lower()
     if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
+        return JSONResponse(
             status_code=400,
-            detail={
-                "detail": f"unsupported file extension: {ext}",
+            content={
                 "code": "invalid_kspace",
+                "detail": f"unsupported file extension: {ext}",
             },
         )
 
     data = await file.read()
     if len(data) > MAX_BYTES:
-        raise HTTPException(
+        return JSONResponse(
             status_code=413,
-            detail={
-                "detail": f"file too large: {len(data)} bytes (max {MAX_BYTES})",
+            content={
                 "code": "file_too_large",
+                "detail": f"file too large: {len(data)} bytes (max {MAX_BYTES})",
             },
         )
 
@@ -92,17 +93,17 @@ async def create_job(
     except InvalidKspaceError as exc:
         tempfile_path.unlink(missing_ok=True)
         tmpdir.rmdir()
-        raise HTTPException(
+        return JSONResponse(
             status_code=400,
-            detail={"detail": str(exc), "code": "invalid_kspace"},
-        ) from exc
+            content={"code": "invalid_kspace", "detail": str(exc)},
+        )
     except UnsupportedShapeError as exc:
         tempfile_path.unlink(missing_ok=True)
         tmpdir.rmdir()
-        raise HTTPException(
+        return JSONResponse(
             status_code=400,
-            detail={"detail": str(exc), "code": "unsupported_shape"},
-        ) from exc
+            content={"code": "unsupported_shape", "detail": str(exc)},
+        )
 
     job = ReconstructionJob(
         job_id=uuid.uuid4(),
