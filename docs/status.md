@@ -6,7 +6,7 @@
 
 ## Current slice
 
-**Slice 3 — MRI Reconstruction Service.** Implementation complete on `slice-3-reconstruction-service`. 73 tests passing. Pending merge to `main`.
+**Slice 3 — MRI Reconstruction Service.** Implementation complete. Merged to `main` 2026-05-07.
 
 Spec: [`superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md`](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md)
 Plan: [`superpowers/plans/2026-05-06-slice-3-reconstruction-service.md`](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md)
@@ -74,8 +74,7 @@ Slice 1 (merged to `main`):
 
 ## What's next
 
-1. Merge `slice-3-reconstruction-service` to `main` and push.
-2. Brainstorm Slice 4 — MinIO + signed-URL upload flow.
+1. Brainstorm Slice 4 — MinIO + signed-URL upload flow + checksum-validated object storage.
 
 ## Test data
 
