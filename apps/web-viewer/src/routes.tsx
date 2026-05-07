@@ -3,6 +3,7 @@ import StudyListPage from "./pages/StudyListPage";
 import StudyDetailPage from "./pages/StudyDetailPage";
 import UploadPage from "./pages/UploadPage";
 import AuditPage from "./pages/AuditPage";
+import ReconstructionPage from "./pages/ReconstructionPage";
 
 export default function Routes() {
   return (
@@ -11,6 +12,7 @@ export default function Routes() {
       <Route path="/studies" element={<StudyListPage />} />
       <Route path="/studies/:studyInstanceUid" element={<StudyDetailPage />} />
       <Route path="/upload" element={<UploadPage />} />
+      <Route path="/reconstruction" element={<ReconstructionPage />} />
       <Route path="/audit" element={<AuditPage />} />
     </RouterRoutes>
   );

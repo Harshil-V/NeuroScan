@@ -7,6 +7,7 @@ export default function Nav() {
       <span className={styles.brand}>NeuroScan</span>
       <NavLink to="/studies" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ""}`}>Studies</NavLink>
       <NavLink to="/upload" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ""}`}>Upload</NavLink>
+      <NavLink to="/reconstruction" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ""}`}>Reconstruction</NavLink>
       <NavLink to="/audit" className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ""}`}>Audit</NavLink>
     </nav>
   );
