@@ -10,13 +10,14 @@ The project is built in independently-shippable slices. Each slice goes through 
 |---|---|---|---|---|
 | 1 | Vertical spine: Compose + FastAPI + Orthanc + Postgres + minimal React + audit + checksum + CI + E2E | **done** | [spec](./superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md) · [plan](./superpowers/plans/2026-05-05-slice-1-vertical-spine.md) | Completed 2026-05-05 on branch `slice-1-vertical-spine` |
 | 2 | Qt desktop viewer (standalone, reads local DICOM dir, no backend dependency) | **done** | [spec](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md) · [plan](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md) | Completed 2026-05-06 on branch `slice-2-qt-desktop-viewer` |
-| 3 | Reconstruction service (k-space → reconstructed image → DICOM → Orthanc) | planned | — | Adds `reconstruction_jobs` table + reconstruction-service container |
+| 3 | Reconstruction service (k-space → reconstructed image → DICOM → Orthanc) | **done** | [spec](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md) · [plan](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md) | Completed 2026-05-07. In-process module inside api-service (see AD-S3-1). |
 | 4 | MinIO + signed-URL upload flow + checksum-validated object storage | planned | — | Adds `storage_objects` table + minio container |
 | 5 | De-identification scanner + warning UI on upload | planned | — | |
 | 6 | Auth (JWT, RBAC) + studies/series/instances cache tables in Postgres | planned | — | First time we duplicate metadata into Postgres |
 | 7 | Prometheus + Grafana + structured logging with request IDs | planned | — | |
 | 8 | Cornerstone3D viewer upgrade (window/level, multi-frame, measurements) | planned | — | |
 | 9 | Background job queue (Redis + Celery or RQ); async reconstruction with retries | planned | — | |
+| 9.5 | Advanced reconstruction: undersampling sim + compressed sensing + optional U-Net | planned | — | Split from old "advanced" bucket; slice 9 focuses on queue, 9.5 owns algorithm depth |
 | 10+ | Kubernetes manifests; real cloud (S3/GCS); CI/CD deploy pipeline | planned | — | |
 
 **Status legend:** `planned` · `in-progress` · `done` · `deferred` · `cancelled`

@@ -6,11 +6,15 @@
 
 ## Current slice
 
-**Slice 2 — Qt desktop viewer.** Implementation complete. Merged to `main` 2026-05-06.
+**Slice 3 — MRI Reconstruction Service.** Implementation complete on `slice-3-reconstruction-service`. 73 tests passing. Pending merge to `main`.
 
-Spec: [`superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md`](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md)
-Plan: [`superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md`](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md)
-README: [`../apps/desktop-viewer/README.md`](../apps/desktop-viewer/README.md)
+Spec: [`superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md`](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md)
+Plan: [`superpowers/plans/2026-05-06-slice-3-reconstruction-service.md`](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md)
+
+Slice 2 (merged to `main`):
+- Spec: [`superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md`](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md)
+- Plan: [`superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md`](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md)
+- README: [`../apps/desktop-viewer/README.md`](../apps/desktop-viewer/README.md)
 
 Slice 1 (merged to `main`):
 - Spec: [`superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md`](./superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md)
@@ -55,10 +59,23 @@ Slice 1 (merged to `main`):
   - New `desktop-viewer` job in CI (lint + 29 unit tests, headless Qt with `QT_QPA_PLATFORM=offscreen`)
   - README with usage docs + 13-item manual smoke checklist
 
+- Slice 3 implementation complete on `slice-3-reconstruction-service`:
+  - Six pure-logic modules: `kspace_loader`, `fft_reconstruct`, `forward_fft`, `metrics` (PSNR+SSIM), `dicom_writer`, `job_runner`
+  - `reconstruction_jobs` table (alembic migration 002, 15 columns, 2 indexes)
+  - `POST /api/reconstruction/jobs` + `GET /api/reconstruction/jobs/{id}` + `GET /api/reconstruction/jobs`
+  - FastAPI BackgroundTasks (sync, threadpool) — 0 ms response latency on submit
+  - Forward-FFT helper: DICOM → `.npz` with embedded ground truth → honest PSNR/SSIM
+  - h5py for fastMRI HDF5 input; scikit-image for SSIM
+  - React `/reconstruction` page: dropzone, polling job table, side-by-side preview, "Open reconstructed study" link
+  - `scripts/generate-synthetic-kspace.py` CLI
+  - 56 unit tests + 17 integration tests = **73 tests** total
+  - QA TC-08 + README quickstart added
+  - Integration test confirmed: FFT round-trip PSNR > 60 dB, SSIM > 0.95
+
 ## What's next
 
-1. Brainstorm Slice 3 — Reconstruction service (k-space → FFT reconstruction → DICOM → Orthanc).
-2. Write Slice 3 spec → plan → implement.
+1. Merge `slice-3-reconstruction-service` to `main` and push.
+2. Brainstorm Slice 4 — MinIO + signed-URL upload flow.
 
 ## Test data
 
