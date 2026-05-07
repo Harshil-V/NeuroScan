@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     BigInteger,
@@ -32,9 +32,7 @@ class ReconstructionJob(Base):
     input_format: Mapped[str] = mapped_column(String(8), nullable=False)
     input_shape: Mapped[str | None] = mapped_column(String(64), nullable=True)
     output_dicom_uid: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    output_orthanc_instance_id: Mapped[str | None] = mapped_column(
-        String(128), nullable=True
-    )
+    output_orthanc_instance_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     psnr_db: Mapped[float | None] = mapped_column(Double, nullable=True)
     ssim: Mapped[float | None] = mapped_column(Double, nullable=True)
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -42,14 +40,10 @@ class ReconstructionJob(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
-    started_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     __table_args__ = (
         Index("idx_recon_created_at", created_at.desc()),
