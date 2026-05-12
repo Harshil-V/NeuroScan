@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     orthanc_url: str = "http://localhost:8042"
     orthanc_user: str = "orthanc"
     orthanc_password: str = "orthanc"
+    minio_endpoint: str = "http://localhost:9000"
+    minio_access_key: str = "minioadmin"
+    minio_secret_key: str = "minioadmin"
+    minio_bucket: str = "neuroscan"
+    minio_region: str = "us-east-1"
     log_level: str = "INFO"
 
 
