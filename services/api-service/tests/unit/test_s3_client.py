@@ -1,4 +1,4 @@
-from datetime import UTC
+from datetime import UTC, datetime
 
 import boto3
 import pytest
@@ -62,8 +62,6 @@ def test_generate_presigned_get_url_returns_signed_url(s3_client):
     assert "X-Amz-Signature" in url
     assert "X-Amz-Expires=300" in url
     # expires_at should be ~5 minutes in the future
-    from datetime import datetime
-
     delta = (expires_at - datetime.now(UTC)).total_seconds()
     assert 290 <= delta <= 310
 

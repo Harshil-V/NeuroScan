@@ -56,7 +56,10 @@ class S3Client:
         except ClientError as exc:
             code = exc.response.get("Error", {}).get("Code")
             if code in ("404", "NoSuchBucket"):
-                self._client.create_bucket(Bucket=self._bucket)
+                try:
+                    self._client.create_bucket(Bucket=self._bucket)
+                except (BotoCoreError, ClientError) as create_exc:
+                    raise S3Error(f"create_bucket failed: {create_exc}") from create_exc
                 return
             raise S3Error(f"head_bucket failed: {exc}") from exc
 
@@ -87,7 +90,8 @@ class S3Client:
         try:
             self._client.list_buckets()
             return True
-        except (BotoCoreError, ClientError):
+        except (BotoCoreError, ClientError) as exc:
+            logger.warning("S3 reachability check failed: %s", exc)
             return False
 
     def generate_presigned_get_url(
