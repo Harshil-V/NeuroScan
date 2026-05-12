@@ -10,7 +10,7 @@ class AuditEventOut(BaseModel):
 
     event_id: uuid.UUID
     event_type: str
-    status: Literal["success", "failure"]
+    status: Literal["success", "failure", "success_minio_skipped"]
     message: str | None
     actor: str
     study_instance_uid: str | None
