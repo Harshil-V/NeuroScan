@@ -83,7 +83,7 @@ class S3Client:
     def head_object(self, key: str) -> dict:
         try:
             return self._client.head_object(Bucket=self._bucket, Key=key)
-        except ClientError as exc:
+        except (BotoCoreError, ClientError) as exc:
             raise S3Error(f"head_object {key} failed: {exc}") from exc
 
     def is_reachable(self) -> bool:

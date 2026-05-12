@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -34,7 +36,7 @@ def get_s3_client(settings: Settings = Depends(get_settings)) -> S3Client:
 async def list_objects(
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
-    source: str | None = None,
+    source: Literal["dicom_upload", "reconstruction_output"] | None = None,
     sha256: str | None = None,
     session: Session = Depends(get_session),
 ) -> StorageObjectList:

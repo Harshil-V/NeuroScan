@@ -12,6 +12,7 @@ from app.services.dicom_validation import (
     validate_dicom,
 )
 from app.services.metadata import extract_metadata
+from app.services.storage import tee_to_s3
 
 
 @dataclass
@@ -80,8 +81,6 @@ async def handle_upload(
     audit_status = "success"
     audit_message: str | None = None
     if s3 is not None:
-        from app.services.storage import tee_to_s3
-
         storage_obj = tee_to_s3(
             s3=s3,
             session=session,
