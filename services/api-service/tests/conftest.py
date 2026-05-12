@@ -67,8 +67,45 @@ def database_url(postgres_container: PostgresContainer) -> str:
     return postgres_container.get_connection_url()
 
 
+@pytest.fixture(scope="session")
+def minio_container() -> Iterator[DockerContainer]:
+    container = (
+        DockerContainer("minio/minio:RELEASE.2024-12-18T13-15-44Z")
+        .with_exposed_ports(9000)
+        .with_env("MINIO_ROOT_USER", "minioadmin")
+        .with_env("MINIO_ROOT_PASSWORD", "minioadmin")
+        .with_command("server /data")
+    )
+    container.start()
+    try:
+        host = container.get_container_host_ip()
+        port = container.get_exposed_port(9000)
+        url = f"http://{host}:{port}"
+        deadline = time.time() + 60
+        while time.time() < deadline:
+            try:
+                r = httpx.get(f"{url}/minio/health/live", timeout=2)
+                if r.status_code == 200:
+                    break
+            except httpx.HTTPError:
+                pass
+            time.sleep(0.5)
+        else:
+            raise RuntimeError("MinIO did not become reachable")
+        yield container
+    finally:
+        container.stop()
+
+
+@pytest.fixture(scope="session")
+def minio_url(minio_container: DockerContainer) -> str:
+    host = minio_container.get_container_host_ip()
+    port = minio_container.get_exposed_port(9000)
+    return f"http://{host}:{port}"
+
+
 @pytest.fixture(scope="session", autouse=True)
-def configure_settings(database_url: str, orthanc_url: str) -> Iterator[None]:
+def configure_settings(database_url: str, orthanc_url: str, minio_url: str) -> Iterator[None]:
     """Override settings via env so the FastAPI app under test sees test infra."""
     old: dict[str, str | None] = {}
     overrides = {
@@ -76,6 +113,11 @@ def configure_settings(database_url: str, orthanc_url: str) -> Iterator[None]:
         "ORTHANC_URL": orthanc_url,
         "ORTHANC_USER": "orthanc",
         "ORTHANC_PASSWORD": "orthanc",
+        "MINIO_ENDPOINT": minio_url,
+        "MINIO_ACCESS_KEY": "minioadmin",
+        "MINIO_SECRET_KEY": "minioadmin",
+        "MINIO_BUCKET": "neuroscan-test",
+        "MINIO_REGION": "us-east-1",
     }
     for k, v in overrides.items():
         old[k] = os.environ.get(k)
@@ -89,6 +131,17 @@ def configure_settings(database_url: str, orthanc_url: str) -> Iterator[None]:
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     engine.dispose()
+
+    # Ensure the test bucket exists
+    from app.clients.s3 import S3Client
+
+    s3 = S3Client(
+        endpoint_url=minio_url,
+        access_key="minioadmin",
+        secret_key="minioadmin",
+        bucket="neuroscan-test",
+    )
+    s3.ensure_bucket()
 
     yield
 
