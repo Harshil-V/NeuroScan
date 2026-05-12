@@ -9,12 +9,13 @@ Local-first MRI / DICOM viewing, reconstruction, and clinical-data-transfer simu
 - DICOM upload, validation, and Orthanc archival with audit logging.
 - Qt desktop viewer (PySide6 + pyqtgraph) for multi-slice DICOM series.
 - **MRI reconstruction**: inverse FFT pipeline with PSNR/SSIM quality metrics, queued via FastAPI BackgroundTasks, output stored as DICOM in Orthanc.
+- **Object storage with signed URLs**: MinIO sidecar persists every DICOM under a content-addressed S3 path; presigned-URL endpoint mints short-TTL share links.
 
 ## Status
 
 See **[`docs/status.md`](docs/status.md)** for the current state.
 
-Active slice: **Slice 1 — Vertical spine** (implementation complete).
+Active slice: **Slice 4 — MinIO Object Storage** (implementation complete on branch).
 
 ## Documentation
 
@@ -44,6 +45,7 @@ docker compose -f infra/docker-compose.yml up -d --build
 #   http://localhost:5173        web viewer
 #   http://localhost:8000/docs   API docs
 #   http://localhost:8042        Orthanc UI (orthanc/orthanc)
+#   http://localhost:9001        MinIO console (minioadmin/minioadmin)
 
 # Generate a synthetic DICOM and upload it via the UI
 uv run --directory services/api-service python ../../scripts/generate-synthetic-dicom.py /tmp/x.dcm
