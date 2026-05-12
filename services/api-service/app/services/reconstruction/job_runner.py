@@ -8,6 +8,8 @@ CPU-bound FFT work. If declared `async def`, it would block the event loop.
 from __future__ import annotations
 
 import contextlib
+import hashlib
+import logging
 import time
 import uuid
 from datetime import UTC, datetime
@@ -18,6 +20,7 @@ from sqlalchemy import update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.clients.orthanc import OrthancError
+from app.clients.s3 import S3Client
 from app.config import Settings
 from app.db import get_engine
 from app.models.reconstruction import ReconstructionJob
@@ -29,6 +32,7 @@ from app.services.reconstruction.kspace_loader import (
     load,
 )
 from app.services.reconstruction.metrics import psnr, ssim
+from app.services.storage import tee_to_s3
 
 
 def _now() -> datetime:
@@ -82,6 +86,28 @@ def run_job(job_id: uuid.UUID, tempfile_path: Path, settings: Settings) -> None:
         # request handlers, but in this sync BackgroundTask body we want a sync
         # call that runs in the threadpool without spinning up an event loop.
         orthanc_instance_id = _upload_sync(settings, write_result.dicom_bytes)
+
+        # Tee reconstructed DICOM to MinIO (best-effort).
+        recon_sha256 = hashlib.sha256(write_result.dicom_bytes).hexdigest()
+        try:
+            s3 = S3Client(
+                endpoint_url=settings.minio_endpoint,
+                access_key=settings.minio_access_key,
+                secret_key=settings.minio_secret_key,
+                bucket=settings.minio_bucket,
+                region=settings.minio_region,
+            )
+            with session_factory() as session:
+                tee_to_s3(
+                    s3=s3,
+                    session=session,
+                    body=write_result.dicom_bytes,
+                    sha256=recon_sha256,
+                    source="reconstruction_output",
+                )
+        except Exception as exc:  # noqa: BLE001
+            # Best-effort: log and continue. Job stays 'completed'.
+            logging.getLogger(__name__).warning("Recon S3 tee failed for job %s: %s", job_id, exc)
 
         duration_ms = int((time.monotonic() - started) * 1000)
 
