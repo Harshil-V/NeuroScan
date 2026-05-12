@@ -16,6 +16,7 @@ dependencies = [
     "python-multipart>=0.0.12",
     "h5py>=3.12",
     "scikit-image>=0.24",
+    "boto3>=1.35",
 ]
 
 [dependency-groups]
@@ -27,6 +28,7 @@ dev = [
     "testcontainers[postgres]>=4.8",
     "ruff>=0.7",
     "numpy>=2.1",
+    "moto[s3]>=5.0",
 ]
 
 [tool.pytest.ini_options]
