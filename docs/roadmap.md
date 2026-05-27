@@ -1,6 +1,6 @@
 # NeuroScan Workstation — Roadmap
 
-**Last updated:** 2026-05-12
+**Last updated:** 2026-05-27
 
 The project is built in independently-shippable slices. Each slice goes through brainstorming → spec → plan → implementation before the next is started. No slice is committed until its predecessors' Definition of Done is met.
 
@@ -12,7 +12,7 @@ The project is built in independently-shippable slices. Each slice goes through 
 | 2 | Qt desktop viewer (standalone, reads local DICOM dir, no backend dependency) | **done** | [spec](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md) · [plan](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md) | Completed 2026-05-06 on branch `slice-2-qt-desktop-viewer` |
 | 3 | Reconstruction service (k-space → reconstructed image → DICOM → Orthanc) | **done** | [spec](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md) · [plan](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md) | Completed 2026-05-07. In-process module inside api-service (see AD-S3-1). |
 | 4 | MinIO + signed-URL upload flow + checksum-validated object storage | **done** | [spec](./superpowers/specs/2026-05-07-slice-4-minio-storage-design.md) · [plan](./superpowers/plans/2026-05-07-slice-4-minio-storage.md) | Completed 2026-05-12, merged 2026-05-27. Sidecar to Orthanc; best-effort failure mode. |
-| 5 | De-identification scanner + warning UI on upload | planned | — | |
+| 5 | De-identification scanner + warning UI on upload | **done** | [spec](./superpowers/specs/2026-05-27-slice-5-deid-scanner-design.md) · [plan](./superpowers/plans/2026-05-27-slice-5-deid-scanner.md) | Completed 2026-05-27. Warn-only (no tag stripping). PHI in web upload panel + desktop viewer. |
 | 6 | Auth (JWT, RBAC) + studies/series/instances cache tables in Postgres | planned | — | First time we duplicate metadata into Postgres |
 | 7 | Prometheus + Grafana + structured logging with request IDs | planned | — | |
 | 8 | Cornerstone3D viewer upgrade (window/level, multi-frame, measurements) | planned | — | |

@@ -1,29 +1,19 @@
 # NeuroScan Workstation — Status
 
-**Last updated:** 2026-05-12
+**Last updated:** 2026-05-27
 
 > Frequently-updated, short. If you're returning to this project after a break, read this first.
 
 ## Current slice
 
-**Slice 4 — MinIO Object Storage + Signed URLs.** Merged to `main` 2026-05-27.
+**Slice 5 — De-identification Scanner.** Implementation complete on `slice-5-deid-scanner`. Pending merge to `main`.
 
-Spec: [`superpowers/specs/2026-05-07-slice-4-minio-storage-design.md`](./superpowers/specs/2026-05-07-slice-4-minio-storage-design.md)
-Plan: [`superpowers/plans/2026-05-07-slice-4-minio-storage.md`](./superpowers/plans/2026-05-07-slice-4-minio-storage.md)
+Spec: [`superpowers/specs/2026-05-27-slice-5-deid-scanner-design.md`](./superpowers/specs/2026-05-27-slice-5-deid-scanner-design.md)
+Plan: [`superpowers/plans/2026-05-27-slice-5-deid-scanner.md`](./superpowers/plans/2026-05-27-slice-5-deid-scanner.md)
 
-Slice 3 (merged to `main`):
-- Spec: [`superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md`](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md)
-- Plan: [`superpowers/plans/2026-05-06-slice-3-reconstruction-service.md`](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md)
-
-Slice 2 (merged to `main`):
-- Spec: [`superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md`](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md)
-- Plan: [`superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md`](./superpowers/plans/2026-05-06-slice-2-qt-desktop-viewer.md)
-- README: [`../apps/desktop-viewer/README.md`](../apps/desktop-viewer/README.md)
-
-Slice 1 (merged to `main`):
-- Spec: [`superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md`](./superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md)
-- Plan: [`superpowers/plans/2026-05-05-slice-1-vertical-spine.md`](./superpowers/plans/2026-05-05-slice-1-vertical-spine.md)
-- QA plan: [`qa-validation-plan.md`](./qa-validation-plan.md)
+Slice 4 (merged to `main` 2026-05-27):
+- Spec: [`superpowers/specs/2026-05-07-slice-4-minio-storage-design.md`](./superpowers/specs/2026-05-07-slice-4-minio-storage-design.md)
+- Plan: [`superpowers/plans/2026-05-07-slice-4-minio-storage.md`](./superpowers/plans/2026-05-07-slice-4-minio-storage.md)
 
 ## What's done
 
@@ -89,9 +79,23 @@ Slice 1 (merged to `main`):
   - 69 unit tests + 22 integration tests = **91 tests** total
   - QA TC-09 + README MinIO console URL added
 
+- Slice 5 implementation complete on `slice-5-deid-scanner`:
+  - `data/deid-rules.json` — PS3.15 subset (10 high + 15 medium tags), JSON-editable
+  - `app/deid/scanner.py` — pure-Python, salted-SHA-256 value hashing, < 5 ms per scan
+  - `phi_findings` table (alembic migration 005, FK to audit_events with CASCADE)
+  - PHI scan wired inline into `upload_orchestrator` (after validate, before Orthanc)
+  - Findings persisted + returned in `UploadResult.phi_findings` summary
+  - `GET /api/audit/events/{event_id}/phi-findings` for audit detail with hashes
+  - Yellow banner + findings table on web upload success panel
+  - Qt desktop viewer: row highlighting (red/amber) + summary banner in metadata panel
+  - Scanner module duplicated to desktop; CI drift check via `scripts/check-deid-scanner-drift.sh`
+  - 88 unit + 30 integration = 118 api-service tests; 36 desktop tests; web build clean
+  - QA TC-10, README PHI bullet, .env.example DEID_HASH_SALT
+
 ## What's next
 
-1. Brainstorm Slice 5 — De-identification scanner + warning UI on upload.
+1. Merge `slice-5-deid-scanner` to `main` and push.
+2. Brainstorm Slice 6 — Auth (JWT, RBAC) + studies/series/instances cache tables in Postgres.
 
 ## Test data
 
@@ -116,6 +120,8 @@ None.
 - 2026-05-12: Locked AD-S4-1..10 (sidecar topology, both DICOM and reconstructed outputs tee'd, single bucket with prefixes, best-effort failure, boto3, presigned GET only, share-link button on audit page, no FK in storage_objects, audit status enum widened, bucket auto-create on startup).
 - 2026-05-12: Slice 4 implementation complete on `slice-4-minio-storage`.
 - 2026-05-27: Slice 4 merged to `main` after end-to-end QA pass (all 12 TC-09 criteria met). Two post-implementation bugs fixed: presigned URL hostname (signed with public URL for browser fetch) and `audit_events.status` VARCHAR(16) overflow.
+- 2026-05-27: Locked AD-S5-1..10 (warn-only, server-inline, PS3.15 subset, upload-page UI, new phi_findings table, two-level severity, salted-SHA-256, desktop also highlights PHI, synthetic-only test data, scanner duplicated with CI drift check).
+- 2026-05-27: Slice 5 implementation complete on `slice-5-deid-scanner`.
 
 ### Slice 2 implementation deviations from spec/plan (record for posterity)
 
@@ -143,6 +149,11 @@ These are recorded so subsequent slices that re-derive infrastructure don't repe
 ### Slice 4 implementation deviations from spec/plan (record for posterity)
 
 - No material deviations. Implementation followed the plan verbatim. Minor code quality fixes applied post-review: wrapped `ensure_bucket`'s `create_bucket` call in try/except, added warning log to `is_reachable`, fixed a module-level import in the test file.
+
+### Slice 5 implementation deviations from spec/plan (record for posterity)
+
+- `METADATA_FIELDS` (desktop metadata panel) does not include InstitutionName, InstitutionAddress, or several other medium-severity tags. Those tags still count toward the summary banner but produce no row highlight in the table — expected and correct, since the panel only shows the 18 configured tags.
+- Slice 1+4 `tests/conftest.py` `db_session` fixture also needed `phi_findings` in its TRUNCATE statement (CASCADE required). Added in G1 task.
 
 ## How to update this file
 

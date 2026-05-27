@@ -1,7 +1,7 @@
-# QA Validation Plan — Slices 1–4
+# QA Validation Plan — Slices 1–5
 
-**Last updated:** 2026-05-12
-**Slices covered:** 1–4 (MinIO Object Storage)
+**Last updated:** 2026-05-27
+**Slices covered:** 1–5 (De-identification Scanner)
 **Spec:** [`superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md`](superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md)
 **Plan:** [`superpowers/plans/2026-05-05-slice-1-vertical-spine.md`](superpowers/plans/2026-05-05-slice-1-vertical-spine.md)
 
@@ -187,6 +187,35 @@ Expected:
 
 Pass criteria: all 5 expected outcomes met.
 
+### TC-10 PHI scanner (web + desktop)
+
+Steps:
+1. With the stack running, generate a PHI-laden DICOM:
+   ```bash
+   cd "/Users/harshilvyas/Documents/Github Repos/NeuroScan/services/api-service"
+   uv run python -c "
+   from tests.fixtures.synthetic_dicom import make_dicom_with_phi
+   open('../data/temp/phi.dcm','wb').write(make_dicom_with_phi())
+   "
+   ```
+2. Open http://localhost:5173/upload and drop `data/temp/phi.dcm`.
+3. Observe the upload success view: yellow banner appears above the success panel with "⚠ PHI detected: 3 high-severity and 4 medium-severity identifiers".
+4. Below the banner, a table lists detected tags (PatientName, PatientID, PatientBirthDate, InstitutionName, ReferringPhysicianName, AccessionNumber, StudyDate) with red/amber severity badges.
+5. Navigate to /audit. Find the new row.
+6. Verify via API: `curl http://localhost:8000/api/audit/events/<event_id>/phi-findings | python3 -m json.tool` — confirms findings with `value_sha256` populated (64-char hex strings).
+7. Open the Qt desktop viewer. Load `data/temp/phi.dcm` via File → Open (or drag onto the window).
+8. Metadata panel shows a yellow summary at the top: "⚠ N high · M medium PHI tags detected".
+9. Rows for PatientName, PatientID, PatientBirthDate are highlighted in light red.
+10. Rows for StudyDate are highlighted in light amber (StudyDate is a medium-severity tag in the panel).
+
+Expected:
+- Step 3: yellow banner visible on upload success page.
+- Step 4: ≥7 rows in findings table.
+- Step 6: API returns 200 with non-empty items and 64-char `value_sha256` strings.
+- Steps 8-10: desktop viewer highlights PHI rows in appropriate colors.
+
+Pass criteria: all 4 expected outcomes met.
+
 ## Automated tests as QA artifacts
 
 The following automated suites also serve as QA evidence:
@@ -214,3 +243,8 @@ These are deliberate scope omissions, all mapped to future slices in [`roadmap.m
 - MinIO storage is best-effort (sidecar to Orthanc). When MinIO is down, uploads still succeed but no `storage_object` row is created. Permanent loss of the MinIO copy is acceptable since Orthanc is the source of truth.
 - Presigned URLs are read-only (GET). Direct-to-MinIO presigned PUT uploads are deferred to a future slice.
 - No lifecycle policy: MinIO objects accumulate indefinitely. Cleanup is a future concern.
+- PHI scanner is **warn-only** — tags are flagged but never stripped or rewritten. A future slice can add anonymization.
+- Free-text PHI inside string-VR fields (StudyDescription, ImageComments) is not detected beyond the tag presence — the value content is not scanned.
+- Burned-in pixel data PHI (faces, text overlays) is not detected.
+- The rule list ships a clinically meaningful subset of DICOM PS3.15 (~25 tags). The full standard has ~120 tags. Expanding requires only a JSON edit.
+- Scanner code is duplicated between `services/api-service/app/deid/scanner.py` and `apps/desktop-viewer/app/deid/scanner.py`. A CI drift check (`scripts/check-deid-scanner-drift.sh`) enforces byte-equality.

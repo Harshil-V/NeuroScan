@@ -10,12 +10,13 @@ Local-first MRI / DICOM viewing, reconstruction, and clinical-data-transfer simu
 - Qt desktop viewer (PySide6 + pyqtgraph) for multi-slice DICOM series.
 - **MRI reconstruction**: inverse FFT pipeline with PSNR/SSIM quality metrics, queued via FastAPI BackgroundTasks, output stored as DICOM in Orthanc.
 - **Object storage with signed URLs**: MinIO sidecar persists every DICOM under a content-addressed S3 path; presigned-URL endpoint mints short-TTL share links.
+- **PHI detection**: every DICOM upload is scanned against the DICOM PS3.15 Basic Confidentiality Profile; identifying tags are surfaced in the UI with severity classification (high/medium), values recorded only as salted SHA-256 hashes.
 
 ## Status
 
 See **[`docs/status.md`](docs/status.md)** for the current state.
 
-Active slice: **Slice 4 — MinIO Object Storage** (implementation complete on branch).
+Active slice: **Slice 5 — De-identification Scanner** (implementation complete on branch).
 
 ## Documentation
 
