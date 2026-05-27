@@ -19,7 +19,7 @@ class AuditEvent(Base):
         Uuid(as_uuid=True), unique=True, nullable=False, default=uuid.uuid4
     )
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     actor: Mapped[str] = mapped_column(String(128), nullable=False, default="local-user")
     study_instance_uid: Mapped[str | None] = mapped_column(String(128), nullable=True)
