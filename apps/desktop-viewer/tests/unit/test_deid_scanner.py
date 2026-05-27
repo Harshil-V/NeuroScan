@@ -1,7 +1,6 @@
 """Smoke tests for the desktop's local PHI scanner."""
 
 import pydicom
-import pytest
 from pydicom.dataset import FileDataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, generate_uid
 
