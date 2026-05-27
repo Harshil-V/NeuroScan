@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { dicomApi } from "../api/dicom";
+import PhiFindingsBanner from "../components/PhiFindingsBanner";
 import UploadDropzone from "../components/UploadDropzone";
 import { ApiClientError } from "../api/client";
 import type { UploadResult } from "../types";
@@ -38,6 +39,7 @@ export default function UploadPage() {
       {mutation.isPending && <p>Uploading...</p>}
       {result && (
         <div data-testid="upload-success" style={{ marginTop: "1rem", color: "#0a6b1f" }}>
+          <PhiFindingsBanner findings={result.phi_findings} />
           <p>Uploaded successfully.</p>
           <ul>
             <li>Study UID: {result.study_instance_uid}</li>
