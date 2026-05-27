@@ -27,7 +27,8 @@ def _truncate_tables_between_tests(database_url: str) -> Iterator[None]:
     try:
         with engine.begin() as conn:
             conn.exec_driver_sql(
-                "TRUNCATE TABLE audit_events, reconstruction_jobs, storage_objects RESTART IDENTITY"
+                "TRUNCATE TABLE audit_events, reconstruction_jobs, storage_objects,"
+                " phi_findings RESTART IDENTITY CASCADE"
             )
     finally:
         engine.dispose()

@@ -161,7 +161,7 @@ def db_session(database_url: str):
         yield s
         s.rollback()
     with engine.begin() as conn:
-        conn.exec_driver_sql("TRUNCATE TABLE audit_events RESTART IDENTITY")
+        conn.exec_driver_sql("TRUNCATE TABLE audit_events, phi_findings RESTART IDENTITY CASCADE")
     engine.dispose()
 
 
