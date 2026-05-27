@@ -37,6 +37,33 @@ export interface Paginated<T> {
   offset: number;
 }
 
+export type PhiSeverity = "high" | "medium";
+
+export interface PhiFindingItem {
+  tag: string;
+  tag_name: string;
+  severity: PhiSeverity;
+}
+
+export interface PhiFindingItemWithHash extends PhiFindingItem {
+  value_sha256: string | null;
+}
+
+export interface PhiFindingsSummary {
+  total: number;
+  high: number;
+  medium: number;
+  items: PhiFindingItem[];
+}
+
+export interface PhiFindingsDetail {
+  audit_event_id: string;
+  total: number;
+  high: number;
+  medium: number;
+  items: PhiFindingItemWithHash[];
+}
+
 export interface UploadResult {
   status: string;
   study_instance_uid: string;
@@ -44,6 +71,7 @@ export interface UploadResult {
   sop_instance_uid: string;
   orthanc_instance_id: string;
   checksum_sha256: string;
+  phi_findings: PhiFindingsSummary;
 }
 
 export interface ApiError {
