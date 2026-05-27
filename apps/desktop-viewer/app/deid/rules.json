@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "source": "DICOM PS3.15 Basic Confidentiality Profile (subset)",
+  "high_severity_tags": [
+    {"tag": "0010,0010", "name": "PatientName"},
+    {"tag": "0010,0020", "name": "PatientID"},
+    {"tag": "0010,0030", "name": "PatientBirthDate"},
+    {"tag": "0010,0040", "name": "PatientSex"},
+    {"tag": "0010,1000", "name": "OtherPatientIDs"},
+    {"tag": "0010,1001", "name": "OtherPatientNames"},
+    {"tag": "0010,1010", "name": "PatientAge"},
+    {"tag": "0010,1040", "name": "PatientAddress"},
+    {"tag": "0010,2154", "name": "PatientTelephoneNumbers"},
+    {"tag": "0010,2160", "name": "EthnicGroup"}
+  ],
+  "medium_severity_tags": [
+    {"tag": "0008,0080", "name": "InstitutionName"},
+    {"tag": "0008,0081", "name": "InstitutionAddress"},
+    {"tag": "0008,0090", "name": "ReferringPhysicianName"},
+    {"tag": "0008,1010", "name": "StationName"},
+    {"tag": "0008,1030", "name": "StudyDescription"},
+    {"tag": "0008,1040", "name": "InstitutionalDepartmentName"},
+    {"tag": "0008,1048", "name": "PhysiciansOfRecord"},
+    {"tag": "0008,1050", "name": "PerformingPhysicianName"},
+    {"tag": "0008,1060", "name": "NameOfPhysiciansReadingStudy"},
+    {"tag": "0008,1070", "name": "OperatorsName"},
+    {"tag": "0008,0050", "name": "AccessionNumber"},
+    {"tag": "0008,0020", "name": "StudyDate"},
+    {"tag": "0008,0021", "name": "SeriesDate"},
+    {"tag": "0008,0022", "name": "AcquisitionDate"},
+    {"tag": "0008,0030", "name": "StudyTime"}
+  ]
+}
