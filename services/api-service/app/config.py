@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     # Override with MINIO_PUBLIC_URL in docker-compose; defaults to minio_endpoint
     # so local-only setups (no Docker) work without extra config.
     minio_public_url: str = ""
+    # PHI scanner salt for value hashing. Override DEID_HASH_SALT in production.
+    # Never log this value; never return it via API.
+    deid_hash_salt: str = "neuroscan-dev-salt"
     log_level: str = "INFO"
 
 
