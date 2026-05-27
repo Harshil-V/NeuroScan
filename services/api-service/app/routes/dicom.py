@@ -31,11 +31,16 @@ async def upload_dicom(
     session: Session = Depends(get_session),
     orthanc: OrthancClient = Depends(get_orthanc_client),
     s3: S3Client = Depends(get_s3_client),
+    settings: Settings = Depends(get_settings),
 ) -> UploadResult:
     data = await file.read()
-    # UploadFailedError is translated to a flat {detail, code} JSON body
-    # by the global exception handler registered in app/main.py.
-    result = await handle_upload(session=session, orthanc=orthanc, dicom_bytes=data, s3=s3)
+    result = await handle_upload(
+        session=session,
+        orthanc=orthanc,
+        dicom_bytes=data,
+        s3=s3,
+        deid_salt=settings.deid_hash_salt,
+    )
     return UploadResult(
         status="uploaded",
         study_instance_uid=result.study_instance_uid,
@@ -43,6 +48,7 @@ async def upload_dicom(
         sop_instance_uid=result.sop_instance_uid,
         orthanc_instance_id=result.orthanc_instance_id,
         checksum_sha256=result.checksum_sha256,
+        phi_findings=result.phi_findings,
     )
 
 
