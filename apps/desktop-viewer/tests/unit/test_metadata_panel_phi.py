@@ -56,7 +56,7 @@ def test_panel_highlights_patient_name_red(qapp):
     assert bg == QColor("#fee2e2"), f"Expected light red, got {bg.name()}"
 
 
-def test_panel_highlights_institution_name_amber(qapp):
+def test_panel_highlights_patient_id_red(qapp):
     panel = MetadataPanel()
     panel.show_dataset(_phi_dataset())
 
