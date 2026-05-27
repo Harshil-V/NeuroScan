@@ -94,3 +94,27 @@ def make_dicom_missing_modality() -> bytes:
     buf = BytesIO()
     ds.save_as(buf, write_like_original=False)
     return buf.getvalue()
+
+
+def make_dicom_with_phi() -> bytes:
+    """Generate a synthetic DICOM with PHI tags injected.
+
+    Used by Slice 5 tests for the PHI scanner. Contains:
+    - 3 high-severity tags (PatientName, PatientID, PatientBirthDate)
+    - 4 medium-severity tags (InstitutionName, ReferringPhysicianName,
+      AccessionNumber, StudyDate is already present by default).
+
+    All values are obviously fake test data.
+    """
+    raw = make_synthetic_mr_dicom_bytes()
+    ds = pydicom.dcmread(BytesIO(raw))
+    ds.PatientName = "DOE^JOHN^TEST"
+    ds.PatientID = "FAKE-MRN-12345"
+    ds.PatientBirthDate = "19800101"
+    ds.InstitutionName = "Test Memorial Hospital"
+    ds.ReferringPhysicianName = "SMITH^JANE"
+    ds.AccessionNumber = "ACC-TEST-001"
+    # StudyDate already set by make_synthetic_mr_dicom_bytes (medium-severity hit)
+    buf = BytesIO()
+    ds.save_as(buf, write_like_original=False)
+    return buf.getvalue()
