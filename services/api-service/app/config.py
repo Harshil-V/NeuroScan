@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "neuroscan"
     minio_region: str = "us-east-1"
+    # Public URL browsers use to fetch presigned URLs. Inside Docker the S3
+    # client talks to minio:9000 (internal), but browsers need localhost:9000.
+    # Override with MINIO_PUBLIC_URL in docker-compose; defaults to minio_endpoint
+    # so local-only setups (no Docker) work without extra config.
+    minio_public_url: str = ""
     log_level: str = "INFO"
 
 

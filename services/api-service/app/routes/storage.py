@@ -76,10 +76,16 @@ async def get_presigned_url(
     expires: int = Query(300, ge=60, le=3600),
     session: Session = Depends(get_session),
     s3: S3Client = Depends(get_s3_client),
+    settings: Settings = Depends(get_settings),
 ) -> PresignedUrlOut:
+    public_base_url = settings.minio_public_url or settings.minio_endpoint
     try:
         url, expires_at = mint_presigned_url(
-            s3=s3, session=session, object_id=object_id, expires_in=expires
+            s3=s3,
+            session=session,
+            object_id=object_id,
+            expires_in=expires,
+            public_base_url=public_base_url,
         )
     except StorageObjectNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

@@ -32,6 +32,9 @@ class S3Client:
     ) -> None:
         self._bucket = bucket
         self._region = region
+        self._endpoint_url = endpoint_url or ""
+        self._access_key = access_key
+        self._secret_key = secret_key
         self._client = boto3.client(
             "s3",
             endpoint_url=endpoint_url,
@@ -95,10 +98,35 @@ class S3Client:
             return False
 
     def generate_presigned_get_url(
-        self, key: str, *, expires_in: int = 300
+        self, key: str, *, expires_in: int = 300, public_base_url: str = ""
     ) -> tuple[str, datetime]:
+        """Return a presigned GET URL and its expiry.
+
+        When running inside Docker, ``endpoint_url`` is the internal hostname
+        (e.g. ``http://minio:9000``).  Presigned URLs include the endpoint
+        hostname in the signature (``X-Amz-SignedHeaders: host``), so the URL
+        must be signed with the same hostname the browser will use to fetch it.
+
+        Pass ``public_base_url`` (e.g. ``http://localhost:9000``) to sign the
+        URL against the browser-reachable origin instead of the internal one.
+        A temporary boto3 client pointed at ``public_base_url`` is used only
+        for signing; no network call is made.
+        """
+        signing_client = self._client
+        if public_base_url and public_base_url != self._endpoint_url:
+            signing_client = boto3.client(
+                "s3",
+                endpoint_url=public_base_url,
+                aws_access_key_id=self._access_key,
+                aws_secret_access_key=self._secret_key,
+                region_name=self._region,
+                config=Config(
+                    signature_version="s3v4",
+                    s3={"addressing_style": "path"},
+                ),
+            )
         try:
-            url = self._client.generate_presigned_url(
+            url = signing_client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": self._bucket, "Key": key},
                 ExpiresIn=expires_in,

@@ -87,8 +87,11 @@ def mint_presigned_url(
     session: Session,
     object_id: int,
     expires_in: int,
+    public_base_url: str = "",
 ) -> tuple[str, datetime]:
     obj = session.get(StorageObject, object_id)
     if obj is None:
         raise StorageObjectNotFoundError(f"storage_object {object_id} not found")
-    return s3.generate_presigned_get_url(obj.object_key, expires_in=expires_in)
+    return s3.generate_presigned_get_url(
+        obj.object_key, expires_in=expires_in, public_base_url=public_base_url
+    )
