@@ -6,7 +6,7 @@
 
 ## Current slice
 
-**Slice 4 — MinIO Object Storage + Signed URLs.** Implementation complete on `slice-4-minio-storage`. Pending merge to `main`.
+**Slice 4 — MinIO Object Storage + Signed URLs.** Merged to `main` 2026-05-27.
 
 Spec: [`superpowers/specs/2026-05-07-slice-4-minio-storage-design.md`](./superpowers/specs/2026-05-07-slice-4-minio-storage-design.md)
 Plan: [`superpowers/plans/2026-05-07-slice-4-minio-storage.md`](./superpowers/plans/2026-05-07-slice-4-minio-storage.md)
@@ -91,8 +91,7 @@ Slice 1 (merged to `main`):
 
 ## What's next
 
-1. Merge `slice-4-minio-storage` to `main` and push.
-2. Brainstorm Slice 5 — De-identification scanner.
+1. Brainstorm Slice 5 — De-identification scanner + warning UI on upload.
 
 ## Test data
 
@@ -116,6 +115,7 @@ None.
 - 2026-05-06: Slice 2 implementation complete and merged to `main`. 29 unit tests passing.
 - 2026-05-12: Locked AD-S4-1..10 (sidecar topology, both DICOM and reconstructed outputs tee'd, single bucket with prefixes, best-effort failure, boto3, presigned GET only, share-link button on audit page, no FK in storage_objects, audit status enum widened, bucket auto-create on startup).
 - 2026-05-12: Slice 4 implementation complete on `slice-4-minio-storage`.
+- 2026-05-27: Slice 4 merged to `main` after end-to-end QA pass (all 12 TC-09 criteria met). Two post-implementation bugs fixed: presigned URL hostname (signed with public URL for browser fetch) and `audit_events.status` VARCHAR(16) overflow.
 
 ### Slice 2 implementation deviations from spec/plan (record for posterity)
 
