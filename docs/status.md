@@ -1,15 +1,19 @@
 # NeuroScan Workstation — Status
 
-**Last updated:** 2026-05-06
+**Last updated:** 2026-05-12
 
 > Frequently-updated, short. If you're returning to this project after a break, read this first.
 
 ## Current slice
 
-**Slice 3 — MRI Reconstruction Service.** Implementation complete. Merged to `main` 2026-05-07.
+**Slice 4 — MinIO Object Storage + Signed URLs.** Implementation complete on `slice-4-minio-storage`. Pending merge to `main`.
 
-Spec: [`superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md`](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md)
-Plan: [`superpowers/plans/2026-05-06-slice-3-reconstruction-service.md`](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md)
+Spec: [`superpowers/specs/2026-05-07-slice-4-minio-storage-design.md`](./superpowers/specs/2026-05-07-slice-4-minio-storage-design.md)
+Plan: [`superpowers/plans/2026-05-07-slice-4-minio-storage.md`](./superpowers/plans/2026-05-07-slice-4-minio-storage.md)
+
+Slice 3 (merged to `main`):
+- Spec: [`superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md`](./superpowers/specs/2026-05-06-slice-3-reconstruction-service-design.md)
+- Plan: [`superpowers/plans/2026-05-06-slice-3-reconstruction-service.md`](./superpowers/plans/2026-05-06-slice-3-reconstruction-service.md)
 
 Slice 2 (merged to `main`):
 - Spec: [`superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md`](./superpowers/specs/2026-05-05-slice-2-qt-desktop-viewer-design.md)
@@ -72,9 +76,23 @@ Slice 1 (merged to `main`):
   - QA TC-08 + README quickstart added
   - Integration test confirmed: FFT round-trip PSNR > 60 dB, SSIM > 0.95
 
+- Slice 4 implementation complete on `slice-4-minio-storage`:
+  - `storage_objects` table (alembic migration 003) with SHA-256 content addressing
+  - `S3Client` (boto3, path-style addressing, retries) with moto-mocked unit tests
+  - `services/storage.py`: `tee_to_s3`, `mint_presigned_url`, `object_key_for`
+  - `routes/storage.py`: list, detail, presigned-url endpoints
+  - Orchestrator + job_runner write to MinIO after Orthanc on every upload (best-effort)
+  - Best-effort: MinIO down → audit `status=success_minio_skipped`, upload still 201
+  - `/health` reports `minio_reachable`; status downgrades to `degraded` when MinIO is down
+  - Audit page gains a "Share link" button (looks up storage_object by SHA-256)
+  - MinIO container in compose (port 9000/9001); `MINIO_*` env vars in `.env.example`
+  - 69 unit tests + 22 integration tests = **91 tests** total
+  - QA TC-09 + README MinIO console URL added
+
 ## What's next
 
-1. Brainstorm Slice 4 — MinIO + signed-URL upload flow + checksum-validated object storage.
+1. Merge `slice-4-minio-storage` to `main` and push.
+2. Brainstorm Slice 5 — De-identification scanner.
 
 ## Test data
 
@@ -96,6 +114,8 @@ None.
 - 2026-05-05: Slice 1 implementation complete and merged to `main`.
 - 2026-05-06: Locked AD-S2-1..9 (PySide6, pyqtgraph, in-memory volume, software W/L, QSettings, no Docker for desktop, no pytest-qt, pylibjpeg deps, CI lint+unit only).
 - 2026-05-06: Slice 2 implementation complete and merged to `main`. 29 unit tests passing.
+- 2026-05-12: Locked AD-S4-1..10 (sidecar topology, both DICOM and reconstructed outputs tee'd, single bucket with prefixes, best-effort failure, boto3, presigned GET only, share-link button on audit page, no FK in storage_objects, audit status enum widened, bucket auto-create on startup).
+- 2026-05-12: Slice 4 implementation complete on `slice-4-minio-storage`.
 
 ### Slice 2 implementation deviations from spec/plan (record for posterity)
 
@@ -119,6 +139,10 @@ None.
 - **OrbStack:** macOS users need `DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock` for testcontainers. Documented in README and QA plan.
 
 These are recorded so subsequent slices that re-derive infrastructure don't repeat the same surprises.
+
+### Slice 4 implementation deviations from spec/plan (record for posterity)
+
+- No material deviations. Implementation followed the plan verbatim. Minor code quality fixes applied post-review: wrapped `ensure_bucket`'s `create_bucket` call in try/except, added warning log to `is_reachable`, fixed a module-level import in the test file.
 
 ## How to update this file
 

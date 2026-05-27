@@ -1,7 +1,7 @@
-# QA Validation Plan — Slice 1
+# QA Validation Plan — Slices 1–4
 
-**Last updated:** 2026-05-05
-**Slice:** 1 — Vertical spine
+**Last updated:** 2026-05-12
+**Slices covered:** 1–4 (MinIO Object Storage)
 **Spec:** [`superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md`](superpowers/specs/2026-05-05-slice-1-vertical-spine-design.md)
 **Plan:** [`superpowers/plans/2026-05-05-slice-1-vertical-spine.md`](superpowers/plans/2026-05-05-slice-1-vertical-spine.md)
 
@@ -158,6 +158,35 @@ Expected:
 
 Pass criteria: all expected outcomes met. Reject row also added if a malformed file is uploaded.
 
+### TC-09 MinIO sidecar + presigned URL
+
+Steps:
+1. With the stack running, upload a DICOM via the web app at /upload.
+2. Open MinIO console at http://localhost:9001 (login: minioadmin / minioadmin).
+3. Browse to the `neuroscan` bucket; expand the `dicom/` prefix.
+4. Confirm a file is present whose name is the SHA-256 of the upload, with `.dcm` extension.
+5. Open the `/audit` page in the web app; locate the row for the upload.
+6. Click "Share link" — a presigned URL is copied to the clipboard, and an alert shows the expiration time.
+7. Paste the URL into a new browser tab; the DICOM downloads.
+8. Wait for the URL to expire (default 5 min) and try again — should return 403 SignatureDoesNotMatch.
+
+Stop MinIO mid-test:
+9. `docker compose stop minio`.
+10. Upload another DICOM via the web app.
+11. The upload returns 201 (status="uploaded").
+12. Open `/audit` — the new row's status is `success_minio_skipped` and shows a yellow color.
+13. The "Share link" button is NOT shown for this row (no storage_object exists).
+14. `curl http://localhost:8000/health` reports `minio_reachable: false`, `status: "degraded"`.
+
+Expected:
+- Step 4: object exists in MinIO.
+- Step 7: download succeeds.
+- Step 8: download is rejected with SignatureDoesNotMatch.
+- Steps 11-13: upload succeeds even with MinIO down; audit row shows the skip.
+- Step 14: health endpoint reports the MinIO outage cleanly.
+
+Pass criteria: all 5 expected outcomes met.
+
 ## Automated tests as QA artifacts
 
 The following automated suites also serve as QA evidence:
@@ -182,3 +211,6 @@ These are deliberate scope omissions, all mapped to future slices in [`roadmap.m
 - Reconstruction supports 2D single-coil k-space only. Multi-coil (sum-of-squares) and 3D volumetric reconstruction are deferred to a future slice.
 - Raw k-space inputs are stored only in a temp directory during processing and deleted on terminal status. Permanent k-space storage is Slice 4's job.
 - Reconstruction jobs are not load-tested for concurrency; a real queue with worker pools comes in Slice 9.
+- MinIO storage is best-effort (sidecar to Orthanc). When MinIO is down, uploads still succeed but no `storage_object` row is created. Permanent loss of the MinIO copy is acceptable since Orthanc is the source of truth.
+- Presigned URLs are read-only (GET). Direct-to-MinIO presigned PUT uploads are deferred to a future slice.
+- No lifecycle policy: MinIO objects accumulate indefinitely. Cleanup is a future concern.

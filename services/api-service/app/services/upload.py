@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from app.clients.orthanc import OrthancClient, OrthancError
+from app.clients.s3 import S3Client
 from app.services.audit import write_event
 from app.services.checksum import sha256_of
 from app.services.dicom_validation import (
@@ -11,6 +12,7 @@ from app.services.dicom_validation import (
     validate_dicom,
 )
 from app.services.metadata import extract_metadata
+from app.services.storage import tee_to_s3
 
 
 @dataclass
@@ -35,6 +37,7 @@ async def handle_upload(
     session: Session,
     orthanc: OrthancClient,
     dicom_bytes: bytes,
+    s3: S3Client | None = None,
 ) -> UploadResult:
     checksum = sha256_of(dicom_bytes)
     try:
@@ -74,10 +77,26 @@ async def handle_upload(
         )
         raise UploadFailedError("orthanc_rejected", str(exc), 502) from exc
 
+    # Tee to S3 (best-effort)
+    audit_status = "success"
+    audit_message: str | None = None
+    if s3 is not None:
+        storage_obj = tee_to_s3(
+            s3=s3,
+            session=session,
+            body=dicom_bytes,
+            sha256=checksum,
+            source="dicom_upload",
+        )
+        if storage_obj is None:
+            audit_status = "success_minio_skipped"
+            audit_message = "MinIO tee failed (see logs); DICOM still in Orthanc"
+
     write_event(
         session,
         event_type="dicom_uploaded",
-        status="success",
+        status=audit_status,
+        message=audit_message,
         study_instance_uid=md["study_instance_uid"],
         series_instance_uid=md["series_instance_uid"],
         sop_instance_uid=md["sop_instance_uid"],

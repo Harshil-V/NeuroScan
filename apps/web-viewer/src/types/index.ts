@@ -54,7 +54,7 @@ export interface ApiError {
 export interface AuditEvent {
   event_id: string;
   event_type: string;
-  status: "success" | "failure";
+  status: "success" | "failure" | "success_minio_skipped";
   message: string | null;
   actor: string;
   study_instance_uid: string | null;
@@ -88,4 +88,20 @@ export interface ReconstructionJobCreated {
   input_file_name: string;
   input_format: "npy" | "npz" | "h5";
   created_at: string;
+}
+
+export interface StorageObject {
+  id: number;
+  bucket: string;
+  object_key: string;
+  sha256: string;
+  content_type: string;
+  size_bytes: number;
+  source: "dicom_upload" | "reconstruction_output";
+  created_at: string;
+}
+
+export interface PresignedUrl {
+  url: string;
+  expires_at: string;
 }

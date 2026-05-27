@@ -3,8 +3,10 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.clients.orthanc import OrthancClient, OrthancError
+from app.clients.s3 import S3Client
 from app.config import Settings, get_settings
 from app.db import get_session
+from app.routes.storage import get_s3_client
 from app.schemas.upload import UploadResult
 from app.services.upload import handle_upload
 
@@ -28,11 +30,12 @@ async def upload_dicom(
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
     orthanc: OrthancClient = Depends(get_orthanc_client),
+    s3: S3Client = Depends(get_s3_client),
 ) -> UploadResult:
     data = await file.read()
     # UploadFailedError is translated to a flat {detail, code} JSON body
     # by the global exception handler registered in app/main.py.
-    result = await handle_upload(session=session, orthanc=orthanc, dicom_bytes=data)
+    result = await handle_upload(session=session, orthanc=orthanc, dicom_bytes=data, s3=s3)
     return UploadResult(
         status="uploaded",
         study_instance_uid=result.study_instance_uid,
