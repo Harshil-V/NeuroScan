@@ -55,8 +55,8 @@ services:
 
   api-service:
     build:
-      context: ../services/api-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: services/api-service/Dockerfile
     image: neuroscan/api-service:dev
     restart: unless-stopped
     depends_on:

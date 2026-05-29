@@ -18,13 +18,14 @@ def _rules_path() -> Path:
     if override:
         return Path(override)
 
-    # services/api-service/app/deid/rules.py
-    # parents[0]=deid  [1]=app  [2]=api-service  [3]=services  [4]=<repo root>
+    # Walk up the tree looking for data/deid-rules.json.
+    # Local dev:  services/api-service/app/deid/rules.py → 4 parents → repo root
+    # Docker:     /app/app/deid/rules.py → 2 parents → /app (where data/ is copied)
     here = Path(__file__).resolve()
-    repo_root = here.parents[4]
-    candidate = repo_root / "data" / "deid-rules.json"
-    if candidate.exists():
-        return candidate
+    for parent in here.parents:
+        candidate = parent / "data" / "deid-rules.json"
+        if candidate.exists():
+            return candidate
 
     return Path("/app/data/deid-rules.json")
 
